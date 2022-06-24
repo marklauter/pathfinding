@@ -10,7 +10,7 @@
             var currentNode = new Node(origin, destination, null, origin);
             _ = open.Add(currentNode);
 
-            while (true)
+            while (currentNode.Target != destination)
             {
                 currentNode = open.MinBy(c => c.FCost);
                 if (currentNode == null)
@@ -21,35 +21,29 @@
                 _ = open.Remove(currentNode);
                 _ = closed.Add(currentNode.Target);
 
-                if (currentNode.Target == destination)
-                {
-                    return ResolvePath(currentNode);
-                }
-
                 for (var j = 0; j < 8; ++j)
                 {
                     var neighbor = currentNode.Target
                         .GetNeighbor((Neighbor)j);
 
-                    // if neighbor is closed or not traversable skip to next
-                    if (closed.Contains(neighbor) || !grid.IsTraversable(neighbor))
+                    if (!closed.Contains(neighbor) && grid.IsTraversable(neighbor))
                     {
-                        continue;
-                    }
-
-                    var neighborNode = new Node(origin, destination, currentNode, neighbor);
-                    if (open.Contains(neighborNode))
-                    {
-                        var previousCost = open.First(c => c.Target == neighbor);
-                        if (neighborNode.FCost < previousCost.FCost)
+                        var neighborNode = new Node(origin, destination, currentNode, neighbor);
+                        if (open.Contains(neighborNode))
                         {
-                            _ = open.Remove(previousCost);
+                            var previousCost = open.First(c => c.Target == neighbor);
+                            if (neighborNode.FCost < previousCost.FCost)
+                            {
+                                _ = open.Remove(previousCost);
+                            }
                         }
-                    }
 
-                    _ = open.Add(neighborNode);
+                        _ = open.Add(neighborNode);
+                    }
                 }
             }
+
+            return ResolvePath(currentNode);
         }
 
         private static List<Point> ResolvePath(Node node)
